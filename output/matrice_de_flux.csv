@@ -1,0 +1,15 @@
+﻿Device;Hostname;FlowType;Source;SourcePort;Destination;DestinationPort;Protocol;Action;ObjectType;ObjectName;Detail
+DC1;bigip-dc1.example.local;Ingress-LB;0.0.0.0/0;any;10.10.10.100;443;tcp;Accept (LB);Virtual Server;/Common/vs_web_443;"pool=/Common/pool_web_80; vlans=/Common/vlan-external; profiles=/Common/http, /Common/clientssl"
+DC1;bigip-dc1.example.local;Ingress-LB;10.50.0.0/16;any;10.10.10.110;8443;tcp;Accept (LB);Virtual Server;/Common/vs_app_8443;"pool=/Common/pool_app_8443; vlans=/Common/vlan-internal; profiles=/Common/tcp"
+DC1;bigip-dc1.example.local;Ingress-LB;0.0.0.0/0;any;10.10.10.120;8080;tcp;Accept (LB);Virtual Server;/Common/vs_legacy_dsr;"pool=/Common/pool_web_80; vlans=toutes (vlans-disabled); profiles=/Common/fastL4"
+DC1;bigip-dc1.example.local;Backend-LB;Self-IP F5 (automap);any;10.1.1.10;80;tcp;LB;Pool Member;pool_web_80 -> 10.1.1.10:80;"virtual=/Common/vs_web_443; snat=automap; monitor=/Common/http"
+DC1;bigip-dc1.example.local;Backend-LB;Self-IP F5 (automap);any;10.1.1.11;80;tcp;LB;Pool Member;pool_web_80 -> 10.1.1.11:80;"virtual=/Common/vs_web_443; snat=automap; monitor=/Common/http"
+DC1;bigip-dc1.example.local;Backend-LB;10.10.10.200, 10.10.10.201;any;10.1.2.20;8443;tcp;LB;Pool Member;pool_app_8443 -> 10.1.2.20:8443;"virtual=/Common/vs_app_8443; snat=snatpool:snat_pool_web; monitor=/Common/https"
+DC1;bigip-dc1.example.local;Backend-LB;0.0.0.0/0;any;10.1.1.10;80;tcp;LB;Pool Member;pool_web_80 -> 10.1.1.10:80;"virtual=/Common/vs_legacy_dsr; snat=none (IP client préservée); monitor=/Common/http"
+DC1;bigip-dc1.example.local;Backend-LB;0.0.0.0/0;any;10.1.1.11;80;tcp;LB;Pool Member;pool_web_80 -> 10.1.1.11:80;"virtual=/Common/vs_legacy_dsr; snat=none (IP client préservée); monitor=/Common/http"
+DC1;bigip-dc1.example.local;Firewall-Rule;0.0.0.0/0;any;10.10.10.100;443;tcp;accept;Firewall rule-list;rl_external_inbound/allow_https_public;log=oui
+DC1;bigip-dc1.example.local;Firewall-Rule;10.50.0.0/16;any;10.10.10.110;8443;tcp;accept;Firewall rule-list;rl_external_inbound/allow_partner_api;log=oui
+DC1;bigip-dc1.example.local;Firewall-Rule;0.0.0.0/0;any;0.0.0.0/0;any;any;drop;Firewall rule-list;rl_external_inbound/drop_all_else;log=oui
+DC1;bigip-dc1.example.local;GTM-DNS;Internet / clients DNS;any;10.10.10.100;443;a;GTM LB (round-robin);GTM WideIP;/Common/www.example.com -> gtm_pool_web -> dc1_server:vs_web_443;datacenter/server=dc1_server
+DC2;bigip-dc2.example.local;Ingress-LB;0.0.0.0/0;any;10.20.10.100;443;tcp;Accept (LB);Virtual Server;/Common/vs_web_443;"pool=/Common/pool_web_80; vlans=/Common/vlan-external; profiles=/Common/http, /Common/clientssl"
+DC2;bigip-dc2.example.local;Backend-LB;Self-IP F5 (automap);any;10.2.1.10;80;tcp;LB;Pool Member;pool_web_80 -> 10.2.1.10:80;"virtual=/Common/vs_web_443; snat=automap; monitor=/Common/http"
